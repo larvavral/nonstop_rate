@@ -300,11 +300,11 @@ void NonstopRatePlugin::AddRate() {
     // Checking to add fake rate every |kAddRateIntervalTime| milliseconds.
     std::this_thread::sleep_for(std::chrono::milliseconds(kAddRateIntervalTime));
 
-    // Get current time.
-    time_t curr_time = server_->TimeCurrent();
-
     std::unique_lock<std::mutex> lock(add_rate_mutex_);
     for (auto symbol : symbols_) {
+      // Get current time.
+      time_t curr_time = server_->TimeCurrent();
+
       std::wstringstream message;
       // Add fake rate when time is in [time_out_, feeder_switch_timeout).
       // Otherwise, do nothing.
@@ -327,7 +327,7 @@ void NonstopRatePlugin::AddRate() {
       // Description.
       std::copy(kFakeRateReservedBytes, kFakeRateReservedBytes + 4, data.reserved);
       // Do not add time for tick, history server will do it for you.
-      //data.datetime = curr_time;
+      data.datetime = curr_time;
       // Get symbol config.
       if (server_->SymbolGet(symbol.first.c_str(), symbol_config_) != MT_RET_OK)
         continue;
